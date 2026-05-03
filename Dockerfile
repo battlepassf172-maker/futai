@@ -10,8 +10,13 @@ RUN apt update -y && apt install --no-install-recommends -y \
     x11-utils x11-xserver-utils x11-apps openssh-server \
     && apt clean && rm -rf /var/lib/apt/lists/*
 
-# Pasul 2: Acum că avem gnupg și ca-certificates, adăugarea PPA-ului va funcționa
-RUN add-apt-repository ppa:mozillateam/ppa -y && \
+# 2. Instalare Firefox (Metoda Manuală - Fără interogare API Launchpad)
+RUN apt install -y gnupg && \
+    # Adăugăm cheia GPG manual
+    curl -fsSL https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x738BEB9321D1AAEC13EA9391AEBDF4819BE21867 | gpg --dearmor -o /usr/share/keyrings/mozilla-ppa.gpg && \
+    # Adăugăm sursa PPA manual
+    echo "deb [signed-by=/usr/share/keyrings/mozilla-ppa.gpg] https://ppa.launchpadcontent.net/mozillateam/ppa/ubuntu jammy main" > /etc/apt/sources.list.d/mozillateam.list && \
+    # Setări priorități
     echo 'Package: *' >> /etc/apt/preferences.d/mozilla-firefox && \
     echo 'Pin: release o=LP-PPA-mozillateam' >> /etc/apt/preferences.d/mozilla-firefox && \
     echo 'Pin-Priority: 1001' >> /etc/apt/preferences.d/mozilla-firefox && \
