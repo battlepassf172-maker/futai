@@ -2,14 +2,15 @@ FROM --platform=linux/amd64 ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 1. Instalare pachete de bază (fără systemd/snapd/init)
+# Pasul 1: Instalăm tot ce este necesar pentru ca sistemul să funcționeze
 RUN apt update -y && apt install --no-install-recommends -y \
+    gnupg ca-certificates software-properties-common \
     xfce4 xfce4-goodies tigervnc-standalone-server novnc websockify \
     sudo xterm vim net-tools curl wget git tzdata dbus-x11 \
-    x11-utils x11-xserver-utils x11-apps software-properties-common openssh-server \
+    x11-utils x11-xserver-utils x11-apps openssh-server \
     && apt clean && rm -rf /var/lib/apt/lists/*
 
-# 2. Instalare Firefox din PPA
+# Pasul 2: Acum că avem gnupg și ca-certificates, adăugarea PPA-ului va funcționa
 RUN add-apt-repository ppa:mozillateam/ppa -y && \
     echo 'Package: *' >> /etc/apt/preferences.d/mozilla-firefox && \
     echo 'Pin: release o=LP-PPA-mozillateam' >> /etc/apt/preferences.d/mozilla-firefox && \
@@ -18,7 +19,7 @@ RUN add-apt-repository ppa:mozillateam/ppa -y && \
     apt update -y && apt install -y firefox xubuntu-icon-theme && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
-# 3. Configurații finale
+# Pasul 3: Configurații finale
 RUN touch /root/.Xauthority && \
     mkdir -p /var/run/sshd && \
     echo 'root:rudyMaFut4123' | chpasswd && \
